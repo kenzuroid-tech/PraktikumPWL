@@ -8,7 +8,6 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Table;
 
 class PostsTable
@@ -17,14 +16,28 @@ class PostsTable
     {
         return $table
             ->columns([
-                TextColumn::make('title'),
-                TextColumn::make('slug'),
-                TextColumn::make('category.name'),
+                TextColumn::make('title')
+                    ->sortable(), // ✅ No.1 - sudah ada
+
+                TextColumn::make('slug')
+                    ->sortable(), // ✅ No.1 - sudah ada
+
+                TextColumn::make('category.name')
+                    ->sortable(), // ✅ No.1 - sudah ada
+
                 ColorColumn::make('color'),
+                // ColorColumn tidak support sortable
+
                 ImageColumn::make('image')
                     ->disk('public'),
-                BooleanColumn::make('published')
+                // ImageColumn tidak support sortable
+
+                TextColumn::make('created_at')
+                    ->label('Created At')
+                    ->dateTime()
+                    ->sortable(), // ✅ No.1 - sudah ada
             ])
+            ->defaultSort('created_at', 'desc') // ✅ No.2 - ubah 'asc' -> 'desc'
             ->filters([
                 //
             ])
