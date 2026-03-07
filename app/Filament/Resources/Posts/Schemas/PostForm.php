@@ -30,63 +30,58 @@ class PostForm
                             ->schema([
                                 TextInput::make("title")
                                     ->required()
-                                    ->minLength(5)
-                                    ->maxLength(255),
+                                    ->rules('min:5 | max:10' ),
                                 TextInput::make("slug")
                                     ->required()
-                                    ->unique('posts')
-                                    ->maxLength(255),
+                                    ->unique()
+                                    ->rules('min:3')
+                                    ->validationMessages([
+                                        "unique" => "Slug harus unik"
+                                    ]),
+                                TextInput::make("nama")
+                                    ->required(),
+                                TextInput::make("email")
+                                    ->required()
+                                    ->email(),
                                 Select::make('category_id')
-                                    ->label('Category')
+                                    ->required()
                                     ->relationship('category', 'name')
                                     ->preload()
-                                    ->searchable()
-                                    ->required()
-                                    ->columnSpanFull(),
-                                ColorPicker::make("color")
-                                    ->columnSpanFull(),
+                                    ->searchable(),
+                                ColorPicker::make("color"),
                                 MarkdownEditor::make("content")
-                                    ->required()
                                     ->columnSpanFull(),
                             ])
                             ->columns(2),
-                        
+                    ]),
+
+                Group::make()
+                    ->columnSpan(1)
+                    ->schema([
                         Section::make('Image')
                             ->description("Upload post image")
                             ->icon('heroicon-o-photo')
                             ->schema([
                                 FileUpload::make('image')
+                                    ->required()
                                     ->disk('public')
                                     ->directory('post')
                                     ->image()
                                     ->columnSpanFull(),
                             ])
                             ->columns(1),
-                    ]),
 
-                Group::make()
-                    ->columnSpan(1)
-                    ->schema([
-                        Section::make('Meta')
-                            ->description("Publish & Tags")
+                        Section::make('Meta Information')
                             ->icon('heroicon-o-cog-6-tooth')
                             ->schema([
+                                TagsInput::make('tags')
+                                    ->label('Tags'),
                                 Checkbox::make('published')
                                     ->label('Published')
                                     ->inline(),
                                 DateTimePicker::make('published_at')
                                     ->label('Published At'),
-                            ])
-                            ->columns(1),
-
-                        Section::make('Tags')
-                            ->description("Post tags")
-                            ->icon('heroicon-o-tag')
-                            ->schema([
-                                TagsInput::make('tags')
-                                    ->label('Tags'),
-                            ])
-                            ->columns(1),
+                            ]),
                     ]),
             ]);
     }
