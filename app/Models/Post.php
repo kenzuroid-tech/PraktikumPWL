@@ -7,15 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class Post extends Model
 {
     protected $fillable = [
-        "title",
-        "slug",
-        "category_id",
-        "color",
-        "image",
-        "body",
-        "tags",
-        "published",
-        "published_at"
+        'title',
+        'slug',
+        'nama',
+        'email',
+        'category_id',
+        'color',
+        'content',
+        'image',
+        'tags',
+        'published',
+        'published_at'
     ];
 
     protected $casts = [

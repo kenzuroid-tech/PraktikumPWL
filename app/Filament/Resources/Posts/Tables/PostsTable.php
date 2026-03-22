@@ -4,11 +4,19 @@ namespace App\Filament\Resources\Posts\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ReplicateAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 
 class PostsTable
 {
@@ -16,33 +24,89 @@ class PostsTable
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('title')
-                    ->sortable(), // ✅ No.1 - sudah ada
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('slug')
-                    ->sortable(), // ✅ No.1 - sudah ada
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('category.name')
-                    ->sortable(), // ✅ No.1 - sudah ada
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
 
-                ColorColumn::make('color'),
-                // ColorColumn tidak support sortable
+                ColorColumn::make('color')
+                    ->toggleable(),
 
                 ImageColumn::make('image')
-                    ->disk('public'),
-                // ImageColumn tidak support sortable
+                    ->disk('public')
+                    ->toggleable(),
 
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()
-                    ->sortable(), // ✅ No.1 - sudah ada
-            ])
-            ->defaultSort('created_at', 'desc') // ✅ No.2 - ubah 'asc' -> 'desc'
+                    ->sortable()
+                    ->toggleable(),
+
+                TextColumn::make('tags')
+                    ->label('Tags')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                IconColumn::make('published')
+                    ->boolean()
+                    ->toggleable(),
+            ])->defaultSort('created_at', 'asc')
             ->filters([
-                //
+                Filter::make('created_at')
+                    ->label('Creation Date')
+                    ->schema([
+                        DatePicker::make('created_at')
+                            ->label('Select Date : ')
+                    ])
+                    ->query(function ($query, $data) {
+                        return $query
+                            ->when(
+                                $data['created_at'],
+                                fn($query, $date) => $query->whereDate('created_at', $date),
+                            );
+                    }),
+                SelectFilter::make('category_id')
+                    ->relationship('category', 'name')
+                    ->label('Category')
+                    ->preload(),
             ])
             ->recordActions([
-                EditAction::make(),
+                ReplicateAction::make()
+                    ->icon('heroicon-o-document-duplicate'),
+
+                EditAction::make()
+                    ->icon('heroicon-o-pencil-square'),
+
+                DeleteAction::make()
+                    ->icon('heroicon-o-trash'),
+
+                Action::make('toggle_publish')
+                    ->label(fn($record) => $record->published ? 'Unpublish' : 'Publish')
+                    ->icon(fn($record) => $record->published
+                        ? 'heroicon-o-eye-slash'
+                        : 'heroicon-o-eye')
+                    ->color(fn($record) => $record->published
+                        ? 'danger'
+                        : 'success')
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        $record->update([
+                            'published' => !$record->published,
+                        ]);
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
