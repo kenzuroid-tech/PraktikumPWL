@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Posts;
 
+use Illuminate\Database\Eloquent\Model;
 use App\Filament\Resources\Posts\Pages\CreatePost;
 use App\Filament\Resources\Posts\Pages\EditPost;
 use App\Filament\Resources\Posts\Pages\ListPosts;
@@ -13,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use App\Filament\Resources\Posts\RelationManagers\TagsRelationManager;
 
 class PostResource extends Resource
 {
@@ -35,7 +37,7 @@ class PostResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            TagsRelationManager::class,
         ];
     }
 
@@ -46,5 +48,33 @@ class PostResource extends Resource
             'create' => CreatePost::route('/create'),
             'edit' => EditPost::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
+    }
+
+    public static function canCreate(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
     }
 }

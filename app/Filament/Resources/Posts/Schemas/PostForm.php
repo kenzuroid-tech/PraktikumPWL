@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Posts\Schemas;
 
+use App\Models\Category;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\TextInput;
@@ -31,6 +32,7 @@ class PostForm
                                 TextInput::make("title")
                                     ->required()
                                     ->rules('min:5 | max:10' ),
+
                                 TextInput::make("slug")
                                     ->required()
                                     ->unique()
@@ -38,15 +40,19 @@ class PostForm
                                     ->validationMessages([
                                         "unique" => "Slug harus unik"
                                     ]),
-                                TextInput::make("nama")
-                                    ->required(),
-                                TextInput::make("email")
-                                    ->required()
-                                    ->email(),
+
+                                // TextInput::make("nama")
+                                //     ->required(),
+
+                                // TextInput::make("email")
+                                //     ->required()
+                                //     ->email(),
+
                                 Select::make('category_id')
                                     ->required()
+                                    ->options(Category::all()->pluck("name", "id"))
                                     ->relationship('category', 'name')
-                                    ->preload()
+                                    // ->preload()
                                     ->searchable(),
                                 ColorPicker::make("color"),
                                 MarkdownEditor::make("content")
@@ -74,8 +80,11 @@ class PostForm
                         Section::make('Meta Information')
                             ->icon('heroicon-o-cog-6-tooth')
                             ->schema([
-                                TagsInput::make('tags')
-                                    ->label('Tags'),
+                                // TagsInput::make('tags')
+                                Select::make("tags")
+                                    ->relationship("tags","name")
+                                    ->multiple()
+                                    ->preload(),
                                 Checkbox::make('published')
                                     ->label('Published')
                                     ->inline(),

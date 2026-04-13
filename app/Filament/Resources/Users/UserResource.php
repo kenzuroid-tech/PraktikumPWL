@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users;
 
+use Illuminate\Database\Eloquent\Model;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
@@ -47,5 +48,33 @@ class UserResource extends Resource
             'create' => CreateUser::route('/create'),
             'edit' => EditUser::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
+    }
+
+    public static function canCreate(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
     }
 }

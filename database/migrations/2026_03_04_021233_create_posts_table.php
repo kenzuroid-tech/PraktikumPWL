@@ -6,29 +6,40 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('posts', function (Blueprint $table) {
-            $table->dropColumn('category_id');
+        Schema::create('posts', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->string('slug');
+            $table->foreignId('category_id')->nullable()->constrained()->cascadeOnDelete(); // tambah ini
+            $table->string('color')->nullable();
+            $table->string('image')->nullable();
+            $table->text('body')->nullable();
+            $table->boolean('published')->default(false);
+            $table->date('published_at')->nullable();
+            $table->timestamps();
         });
 
-        Schema::table('posts', function (Blueprint $table) {
-            $table->foreignId('category_id')
-                ->nullable()
+        Schema::create('tags', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('post_tag', function (Blueprint $table) {
+            $table->foreignId('post_id')
                 ->constrained()
                 ->cascadeOnDelete();
+            $table->foreignId('tag_id')
+                ->constrained()
+                ->cascadeOnDelete();
+            $table->primary(['post_id', 'tag_id']);
         });
     }
 
     public function down(): void
     {
-        Schema::table('posts', function (Blueprint $table) {
-            $table->dropForeign(['category_id']);
-            $table->dropColumn('category_id');
-            $table->string('category_id')->nullable();
-        });
+        Schema::dropIfExists('posts');
     }
 };

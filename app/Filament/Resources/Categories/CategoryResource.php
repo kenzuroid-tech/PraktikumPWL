@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories;
 
+use Illuminate\Database\Eloquent\Model;
 use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
@@ -13,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use App\Filament\Resources\Categories\RelationManagers\PostsRelationManager;
 
 class CategoryResource extends Resource
 {
@@ -35,9 +37,10 @@ class CategoryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PostsRelationManager::class
         ];
     }
+
 
     public static function getPages(): array
     {
@@ -46,5 +49,33 @@ class CategoryResource extends Resource
             'create' => CreateCategory::route('/create'),
             'edit' => EditCategory::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
+    }
+
+    public static function canCreate(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        return $user->role === 'admin';
     }
 }

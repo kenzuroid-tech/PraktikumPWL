@@ -39,6 +39,7 @@ class PostsTable
                     ->toggleable(),
 
                 TextColumn::make('category.name')
+                    ->label('Category')
                     ->sortable()
                     ->searchable()
                     ->toggleable(),
